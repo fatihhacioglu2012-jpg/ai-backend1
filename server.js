@@ -2,6 +2,11 @@ import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import cors from "cors";
+app.use(cors({
+  origin: "*", // tüm sitelerden gelen isteğe izin verir
+}));
+
 
 
 const app = express();
