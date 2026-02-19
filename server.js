@@ -1,10 +1,22 @@
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 dakika
+  max: 20, // 1 dakikada max 20 istek
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Çok fazla istek attın. Lütfen biraz bekle." }
+});
+
+app.use(limiter);
+
 
 app.post("/chat", async (req, res) => {
   try {
