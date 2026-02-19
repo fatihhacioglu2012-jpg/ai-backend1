@@ -2,16 +2,17 @@ import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import cors from "cors";
-app.use(cors({
-  origin: "*", // tüm sitelerden gelen isteğe izin verir
-}));
-
-
 
 const app = express();
-app.use(cors());
+
+// CORS ayarı
+app.use(cors({
+  origin: "*" // tüm sitelerden gelen isteğe izin verir
+}));
+
 app.use(express.json());
+
+// Rate limit
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 dakika
   max: 20, // 1 dakikada max 20 istek
@@ -19,10 +20,9 @@ const limiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Çok fazla istek attın. Lütfen biraz bekle." }
 });
-
 app.use(limiter);
 
-
+// Chat route
 app.post("/chat", async (req, res) => {
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -32,7 +32,7 @@ app.post("/chat", async (req, res) => {
         "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "gpt-4o-mini", // eski model yerine desteklenen model
         messages: req.body.messages
       })
     });
@@ -40,8 +40,11 @@ app.post("/chat", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Bir hata oluştu." });
   }
 });
 
-app.listen(3000, () => console.log("Server running"));
+// Port ayarı Render uyumlu
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
